@@ -1,5 +1,6 @@
 import random
-#import matplotlib.pyplot as plt
+import numpy as np
+import os
 
 class RestaurantDistribution():
     def __init__(self, restaurant, distribution = None):
@@ -23,10 +24,6 @@ class RestaurantDistribution():
             # decrease linearly as we move left and right
             self.distribution = triangle_distribution(restaurant.rating / 5.0)
 
-# TODO: revisit this
-#    def plot(self):
-#        plt.plot(self.distribution)
-
     def update(self, observation):
         # Joint probability = the probability of both a specific probability being true p(H)
         # and an observation occurring p(D|H)
@@ -47,28 +44,27 @@ class RestaurantDistribution():
     def sample(self):
         # TODO: don't crash if this returns an empty list for some reason
         return random.choices(
-            population=[x/100 for x in range(0, 100)],
+            population=[x/100 for x in range(0, 101)],
             weights=self.distribution,
             k=1
         )[0]
 
 def sample(restaurant_distributions):
-    weights = list(map(lambda d: d.sample(), restaurant_distributions))
-    results = random.choices(
-        population=restaurant_distributions,
-        weights=weights,
-        k=1
-    )
-    # todo: empty guard
-    return results[0].restaurant
+    probabilities = list(map(lambda d: d.sample(), restaurant_distributions))
+    summary = { x[1].restaurant.id: x[0] for x in zip(probabilities, restaurant_distributions) }
+
+    return {
+        'restaurant': restaurant_distributions[np.argmax(probabilities)].restaurant,
+        'probabilities': summary,
+    }
 
 def triangle_distribution(median_prob):
     probs = []
     tick = 0
-    while tick < median_prob and len(probs) < 100:
+    while tick < median_prob and len(probs) < 101:
         tick = tick + .01
         probs.append(tick)
-    while len(probs) < 100:
+    while len(probs) < 101:
         tick = tick - .01
         probs.append(tick)
     total = sum(probs)

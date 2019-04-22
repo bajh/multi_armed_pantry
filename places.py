@@ -4,7 +4,12 @@ import json
 import sys
 
 Result = namedtuple('Result', ['restaurants', 'pagetoken'])
-Restaurant = namedtuple('Restaurant', ['id', 'name', 'vicinity', 'rating'])
+class Restaurant():
+    def __init__(self, id, name, vicinity, rating):
+        self.id = id
+        self.name = name
+        self.vicinity = vicinity
+        self.rating = rating
 
 class PlacesClient():
 
